@@ -35,7 +35,7 @@ Based on these inputs, XploreMonk will suggest relevant hotels and itineraries, 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/xplore-monk.git
+   git clone https://github.com/abhijeetvr12/Xplore-Monk-AI-Travel-Planner.git
    ```
 
 2. Navigate into the project directory:
