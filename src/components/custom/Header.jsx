@@ -12,8 +12,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { FcGoogle } from "react-icons/fc";
 
@@ -21,11 +19,18 @@ import axios from "axios";
 
 function Header() {
   const [openDailog, setOpenDailog] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   const user = JSON.parse(localStorage.getItem("user"));
-  
+
   useEffect(() => {
-    console.log(user);
-  }, [user]);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    handleResize(); // Check on initial load
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const GetUserProfile = (tokenInfo) => {
     axios
@@ -56,34 +61,60 @@ function Header() {
       <a href="/">
         <img
           src="/Xplore.png"
-          className="h-[60px] sm:h-[75px] rounded-full object-cover"
+          className="h-[50px] sm:h-[60px] rounded-full object-cover"
           alt="XploreMonk Logo"
         />
       </a>
-      <div>
+      <div className="flex items-center gap-4">
         {user ? (
-          <div className="flex items-center gap-2 sm:gap-3">
-            <a href="/create-trip">
-              <Button variant="outline" className="rounded-full text-sm sm:text-base px-3 py-1 sm:px-4">
-                + Create Trip
-              </Button>
-            </a>
-            <a href="/my-trips">
-              <Button variant="outline" className="rounded-full text-sm sm:text-base px-3 py-1 sm:px-4">
-                My Trips
-              </Button>
-            </a>
+          <>
+            {!isMobile && (
+              <div className="flex items-center gap-2">
+                <a href="/create-trip">
+                  <Button
+                    variant="outline"
+                    className="rounded-full text-sm sm:text-base px-3 py-1 sm:px-4"
+                  >
+                    Create Trip
+                  </Button>
+                </a>
+                <a href="/my-trips">
+                  <Button
+                    variant="outline"
+                    className="rounded-full text-sm sm:text-base px-3 py-1 sm:px-4"
+                  >
+                    My Trips
+                  </Button>
+                </a>
+              </div>
+            )}
             <Popover>
-              <PopoverTrigger className="rounded-full bg-transparent">
+              <PopoverTrigger className="rounded-full bg-transparent border-white ">
                 <img
-                  src={user?.picture?user?.picture:'/user.png'}
+                  src={user?.picture ? user?.picture : "/user.png"}
                   alt="User Profile"
-                  className="h-[30px] sm:h-[35px] w-[30px] sm:w-[35px] rounded-full"
+                  className="h-[30px] sm:h-[35px] w-[30px] sm:w-[35px] rounded-full border-none"
                 />
               </PopoverTrigger>
-              <PopoverContent>
+              <PopoverContent className="p-4 w-48">
+                {isMobile && (
+                  <>
+                    <a
+                      href="/create-trip"
+                      className="block text-sm text-gray-700 hover:bg-gray-100 rounded-t p-2"
+                    >
+                      Create Trip
+                    </a>
+                    <a
+                      href="/my-trips"
+                      className="block text-sm text-gray-700 hover:bg-gray-100 p-2"
+                    >
+                      My Trips
+                    </a>
+                  </>
+                )}
                 <h2
-                  className="cursor-pointer"
+                  className="block text-sm text-red-500 hover:bg-gray-100 rounded-b p-2 cursor-pointer"
                   onClick={() => {
                     googleLogout();
                     localStorage.clear();
@@ -95,7 +126,7 @@ function Header() {
                 </h2>
               </PopoverContent>
             </Popover>
-          </div>
+          </>
         ) : (
           <Button
             onClick={() => setOpenDailog(true)}
@@ -110,8 +141,12 @@ function Header() {
           <DialogHeader>
             <DialogDescription>
               <img src="/Xplore.png" alt="XploreMonk Logo" />
-              <h2 className="font-bold text-lg mt-7 text-center">Sign In With Google</h2>
-              <p className="text-sm text-center">Sign in to the app securely with Google authentication</p>
+              <h2 className="font-bold text-lg mt-7 text-center">
+                Sign In With Google
+              </h2>
+              <p className="text-sm text-center">
+                Sign in to the app securely with Google authentication
+              </p>
               <Button
                 onClick={login}
                 className="w-full mt-5 flex gap-4 items-center justify-center"
