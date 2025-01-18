@@ -1,44 +1,48 @@
 import { db } from '@/service/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import InfoSection from '../components/InfoSection';
 import Hotels from '../components/Hotels';
 import PlacesToVisit from '../components/PlacesToVisit';
 import Footer from '../components/Footer';
 
-
-
 function ViewTrip() {
-    const {tripId} = useParams();
-    const [trip,setTrip] = useState([]);
-    useEffect(()=>{
-        tripId&&GetTripData();
-    },[tripId])
-    const GetTripData=async()=>{
-        const docRef = doc(db,'AITrips',tripId);
+    const { tripId } = useParams();
+    const [trip, setTrip] = useState([]);
+
+    useEffect(() => {
+        tripId && GetTripData();
+    }, [tripId]);
+
+    const GetTripData = async () => {
+        const docRef = doc(db, 'AITrips', tripId);
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()){
-            console.log("Document",docSnap.data());
+        if (docSnap.exists()) {
+            console.log("Document", docSnap.data());
             setTrip(docSnap.data());
-        }else{
+        } else {
             console.log("No such document!");
-            toast('No trip Found!');
+            toast.error('No trip found. Please try again later.');
         }
-    }
-  return (
-    <div className='p-10 md:px-20 lg:px-44 xl:px-56'>
-    {/* Information Section */}
-     <InfoSection trip={trip}/>
-    {/* Recommended Hotels */}
-      <Hotels trip={trip}/>
-    {/* Daily Plan */}
-      <PlacesToVisit trip ={trip}/>
-    {/* Footer */}
-    <Footer  trip={trip}/>
-    </div>
-  )
+    };
+
+    return (
+        <div className='p-5 md:px-10 lg:px-20 xl:px-32 bg-gray-50 min-h-screen'>
+            {/* Information Section */}
+            <InfoSection trip={trip} />
+            
+            {/* Recommended Hotels */}
+            <Hotels trip={trip} />
+            
+            {/* Daily Plan */}
+            <PlacesToVisit trip={trip} />
+            
+            {/* Footer */}
+            <Footer trip={trip} />
+        </div>
+    );
 }
 
-export default ViewTrip
+export default ViewTrip;

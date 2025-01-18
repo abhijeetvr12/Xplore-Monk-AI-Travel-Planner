@@ -2,44 +2,40 @@ import React from "react";
 import PlaceCardItem from "./PlaceCardItem";
 
 function PlacesToVisit({ trip }) {
-  //console.log(trip);
+    const itineraryEntries = trip?.tripData?.itinerary
+        ? Object.entries(trip.tripData.itinerary).sort(
+            ([dayA], [dayB]) =>
+                parseInt(dayA.replace("day", ""), 10) - parseInt(dayB.replace("day", ""), 10)
+        )
+        : [];
 
-  // Convert itinerary object to an array of entries and sort by day number
-  const itineraryEntries = trip?.tripData?.itinerary
-    ? Object.entries(trip.tripData.itinerary).sort(
-        ([dayA], [dayB]) =>
-          parseInt(dayA.replace("day", ""), 10) - parseInt(dayB.replace("day", ""), 10)
-      )
-    : [];
-
-  return (
-    <div>
-      <h2 className="font-bold text-lg">Places to Visit</h2>
-      <div>
-        {itineraryEntries.length > 0 ? (
-          itineraryEntries.map(([day, details], index) => (
-            <div key={index} className="mt-5" >
-              <h2 className="font-medium text-lg">Day: {day}</h2>
-              <h3 className="font-medium text-md">{details.theme}</h3>
-              <p>Best time to visit: {details.bestTimeToVisit}</p>
-              <div className="grid md:grid-cols-2 gap-5">
-              {details.activities?.map((activity, idx) => (
-                <div key={idx} className="">
-                  <h2 className="font-medium text-sm text-orange-600">
-                    {activity.time} {/* Example: 9AM - 12AM */}
-                  </h2>
-                  <PlaceCardItem place={activity} />
-                </div>
-              ))}
-              </div>
+    return (
+        <div className='mt-10'>
+            <h2 className="font-bold text-2xl text-blue-600">Explore Places to Visit</h2>
+            <div className='mt-5'>
+                {itineraryEntries.length > 0 ? (
+                    itineraryEntries.map(([day, details], index) => (
+                        <div key={index} className="mt-8 bg-white shadow-lg rounded-lg p-5">
+                            <h3 className="font-semibold text-xl text-gray-800">Day {day.replace("day", "")} - {details.theme}</h3>
+                            <p className="text-sm text-gray-600">Best time to visit: {details.bestTimeToVisit}</p>
+                            <div className="grid gap-4 mt-5 md:grid-cols-2">
+                                {details.activities?.map((activity, idx) => (
+                                    <div key={idx} className="">
+                                        <h4 className="font-medium text-md text-orange-500">
+                                            {activity.time}
+                                        </h4>
+                                        <PlaceCardItem place={activity} />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-center text-gray-500">No itinerary available. Start planning your trip today!</p>
+                )}
             </div>
-          ))
-        ) : (
-          <p>No itinerary available.</p>
-        )}
-      </div>
-    </div>
-  );
+        </div>
+    );
 }
 
 export default PlacesToVisit;
