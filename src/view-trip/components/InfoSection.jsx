@@ -41,7 +41,7 @@ function InfoSection({trip}) {
                 </h2>
             </div>
         </div>
-        <Button><IoIosSend /></Button>
+        {/* <Button><IoIosSend /></Button> */}
         </div>
     
     </div>

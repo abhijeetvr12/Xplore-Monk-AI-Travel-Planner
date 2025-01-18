@@ -89,7 +89,7 @@ function Header() {
               </div>
             )}
             <Popover>
-              <PopoverTrigger className="rounded-full bg-transparent border-white ">
+              <PopoverTrigger className="rounded-full bg-transparent border-white  ">
                 <img
                   src={user?.picture ? user?.picture : "/user.png"}
                   alt="User Profile"
