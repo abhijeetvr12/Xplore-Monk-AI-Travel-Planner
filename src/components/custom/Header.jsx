@@ -6,7 +6,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { googleLogout, useGoogleLogin } from "@react-oauth/google";
-
 import {
   Dialog,
   DialogContent,
@@ -14,7 +13,6 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { FcGoogle } from "react-icons/fc";
-
 import axios from "axios";
 
 function Header() {
@@ -56,6 +54,19 @@ function Header() {
     onError: (error) => console.log(error),
   });
 
+  const handleGuestLogin = () => {
+    const guestUser = {
+      id: "guest_" + Math.random().toString(36).substr(2, 9), // Unique guest ID
+      name: "Guest",
+      email: "",
+      picture: "/guest.png", // Default guest avatar (ensure this file exists)
+      isGuest: true, // Flag to identify guest users
+    };
+    localStorage.setItem("user", JSON.stringify(guestUser));
+    setOpenDailog(false);
+    window.location.reload();
+  };
+
   return (
     <div className="p-2 sm:p-3 shadow-sm flex justify-between items-center px-4 sm:px-5 bg-white">
       <a href="/">
@@ -89,7 +100,7 @@ function Header() {
               </div>
             )}
             <Popover>
-              <PopoverTrigger className="rounded-full bg-transparent border-white  ">
+              <PopoverTrigger className="rounded-full bg-transparent border-white">
                 <img
                   src={user?.picture ? user?.picture : "/user.png"}
                   alt="User Profile"
@@ -116,8 +127,10 @@ function Header() {
                 <h2
                   className="block text-sm text-red-500 hover:bg-gray-100 rounded-b p-2 cursor-pointer"
                   onClick={() => {
-                    googleLogout();
-                    localStorage.clear();
+                    if (!user.isGuest) {
+                      googleLogout(); // Only call for Google users
+                    }
+                    localStorage.removeItem("user"); // Remove user data for both
                     window.location.reload();
                     window.location.href = "/";
                   }}
@@ -142,10 +155,10 @@ function Header() {
             <DialogDescription>
               <img src="/Xplore.png" alt="XploreMonk Logo" />
               <h2 className="font-bold text-lg mt-7 text-center">
-                Sign In With Google
+                Sign In Options
               </h2>
               <p className="text-sm text-center">
-                Sign in to the app securely with Google authentication
+                Choose how you want to proceed
               </p>
               <Button
                 onClick={login}
@@ -153,6 +166,13 @@ function Header() {
               >
                 <FcGoogle className="h-7 w-7" />
                 Sign In With Google
+              </Button>
+              <Button
+                onClick={handleGuestLogin}
+                variant="outline"
+                className="w-full mt-3"
+              >
+                Continue as Guest
               </Button>
             </DialogDescription>
           </DialogHeader>

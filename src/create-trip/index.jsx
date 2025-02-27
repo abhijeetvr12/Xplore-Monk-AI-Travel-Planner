@@ -26,12 +26,12 @@ import { useNavigate } from "react-router-dom";
 
 function CreateTrip() {
   const [place, setPlace] = useState();
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState({}); // Changed from array to object
   const [openDailog, setOpenDailog] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handelInputChange = (name, value) => {
+  const handleInputChange = (name, value) => { // Fixed typo: handelInputChange -> handleInputChange
     setFormData({
       ...formData,
       [name]: value,
@@ -47,8 +47,22 @@ function CreateTrip() {
     onError: (error) => console.log(error),
   });
 
+  // New function for guest login
+  const handleGuestLogin = () => {
+    const guestUser = {
+      id: "guest_" + Math.random().toString(36).substr(2, 9), // Unique guest ID
+      name: "Guest",
+      email: "", // No email for guests
+      picture: "/guest.png", // Default guest avatar (ensure this exists)
+      isGuest: true, // Flag to identify guest users
+    };
+    localStorage.setItem("user", JSON.stringify(guestUser));
+    setOpenDailog(false);
+    OnGenerateTrip();
+  };
+
   const OnGenerateTrip = async () => {
-    const user = localStorage.getItem("user");
+    const user = localStorage.getItem("user"); // Get user from localStorage
     if (!user) {
       setOpenDailog(true);
       return;
@@ -57,16 +71,13 @@ function CreateTrip() {
     if (
       (formData?.days > 5 && !formData?.location) ||
       !formData?.budget ||
-      !formData.traveller
+      !formData?.traveller
     ) {
       toast("Please fill in all details to create your trip!");
       return;
     }
     setLoading(true);
-    const FINAL_PROMPT = AI_PROMPT.replace(
-      "{location}",
-      formData?.location?.label
-    )
+    const FINAL_PROMPT = AI_PROMPT.replace("{location}", formData?.location?.label)
       .replace("{days}", formData?.days)
       .replace("{traveller}", formData?.traveller)
       .replace("{budget}", formData?.budget)
@@ -85,7 +96,7 @@ function CreateTrip() {
     await setDoc(doc(db, "AITrips", docId), {
       userSelection: formData,
       tripData: JSON.parse(TripData),
-      userEmail: user?.email,
+      userEmail: user?.email || "guest@example.com", // Dummy email for guests
       id: docId,
     });
     setLoading(false);
@@ -132,7 +143,7 @@ function CreateTrip() {
               place,
               onChange: (v) => {
                 setPlace(v);
-                handelInputChange("location", v);
+                handleInputChange("location", v);
               },
             }}
           />
@@ -147,7 +158,7 @@ function CreateTrip() {
             placeholder="E.g., 5"
             type="number"
             className="mt-2"
-            onChange={(e) => handelInputChange("days", e.target.value)}
+            onChange={(e) => handleInputChange("days", e.target.value)}
           />
         </div>
 
@@ -160,7 +171,7 @@ function CreateTrip() {
             {SelectBudgetOPtions.map((item, index) => (
               <div
                 key={index}
-                onClick={() => handelInputChange("budget", item.title)}
+                onClick={() => handleInputChange("budget", item.title)}
                 className={`p-4 border cursor-pointer rounded-lg text-center hover:shadow-lg transition-all duration-200 ${
                   formData?.budget === item.title
                     ? "shadow-lg border-blue-600"
@@ -184,7 +195,7 @@ function CreateTrip() {
             {SelectTravelseList.map((item, index) => (
               <div
                 key={index}
-                onClick={() => handelInputChange("traveller", item.people)}
+                onClick={() => handleInputChange("traveller", item.people)}
                 className={`p-4 border cursor-pointer rounded-lg text-center hover:shadow-lg transition-all duration-200 ${
                   formData?.traveller === item.people
                     ? "shadow-lg border-blue-600"
@@ -222,10 +233,10 @@ function CreateTrip() {
             <DialogDescription>
               <img src="/Xplore.png" alt="XploreMonk" className="mx-auto" />
               <h2 className="font-bold text-lg mt-7 text-center">
-                Sign In With Google
+                Sign In Options
               </h2>
               <p className="text-center">
-                Access personalized trip planning securely with Google.
+                Choose how you want to proceed
               </p>
               <Button
                 onClick={login}
@@ -233,6 +244,13 @@ function CreateTrip() {
               >
                 <FcGoogle className="h-7 w-7" />
                 Sign In With Google
+              </Button>
+              <Button
+                onClick={handleGuestLogin}
+                variant="outline"
+                className="w-full mt-3"
+              >
+                Continue as Guest
               </Button>
             </DialogDescription>
           </DialogHeader>
